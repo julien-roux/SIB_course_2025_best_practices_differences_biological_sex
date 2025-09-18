@@ -55,6 +55,7 @@ saveRDS(devtools::session_info(), "session_info_DESeq2.rds")
 ```
 
 # Read in data
+
 ```{r}
 ## Load the RangedSummarizedExperiment object 
 rse <- readRDS("rse_SRP218156.rds")
@@ -283,9 +284,9 @@ data.frame(res[rowData(dds)$gene_name %in% c("Egr2", "Fos", "Dusp1", "Nr4a1", "S
 
 ## Extracting the interaction term
 
-Although this is not tested explicitely, a main aim o fthe study is to identify genes reacting differently to Tamoxifen treatment in male and female. It is possible to test this by extracting the interaction between sex and tratment. 
+Although this is not tested explicitely, a main aim o fthe study is to identify genes reacting differently to Tamoxifen treatment in male and female. It is possible to test this by extracting the interaction between sex and tratment.
 
-See `?DESeq2::results` explaining how to extract this effect (Example 3). We need to update the design in the DESeq2 object. 
+See `?DESeq2::results` explaining how to extract this effect (Example 3). We need to update the design in the DESeq2 object.
 
 ```{r}
 design(dds) <- ~ tissue + treatment * sex
@@ -361,19 +362,22 @@ head(fgseaRes[order(fgseaRes$pval), ], n=11)
 
 # To finish
 
-- *"Interpretations of sex-related variation are not always commensurate with the story the data actually tell"* (Pape et al. 2024). How do you judge the interpretations of the results in the published paper?
+-   *"Interpretations of sex-related variation are not always commensurate with the story the data actually tell"* (Pape et al. 2024). How do you judge the interpretations of the results in the published paper?
 
-- Discuss potential limitations of the paper and the conclusion about the absence of Tamoxifen effect.
-    - What is important to notice in the design of the experiment (tamoxifen treatment duration, batches, number of replicates, ...)?
-    - Have a look at the results and materials and methods section: which analyses were made and how could they influence the results?
+-   Discuss potential limitations of the paper and the conclusion about the absence of Tamoxifen effect.
 
-- Limitations of our reanalysis: what could be improved if we had more time?
-    - Try subsetting the dataset to one tissue as done by the authors. What do you notice?
+    -   What is important to notice in the design of the experiment (tamoxifen treatment duration, batches, number of replicates, ...)?
+    -   Have a look at the results and materials and methods section: which analyses were made and how could they influence the results?
 
-- *"Sex is not a causal mechanism"* (Pape et al. 2024): follow-up on some DE genes and try to find which mechanism of action could explain their differential expression patterns.
+-   Limitations of our reanalysis: what could be improved if we had more time?
 
-- Discuss what would be the next steps if that was your research project. Which experiments would you design next? How would you describe the results in a paper?
-    - You can also have a look at other related papers (e.g., https://www.nature.com/articles/s41586-022-04686-1, https://www.ahajournals.org/doi/10.1161/ATVBAHA.123.319922)
-    - Or look at follow-up papers from the same authors (e.g., https://link.springer.com/article/10.1007/s12035-022-02860-0)
+    -   Try subsetting the dataset to one tissue as done by the authors. What do you notice?
+
+-   *"Sex is not a causal mechanism"* (Pape et al. 2024): follow-up on some DE genes and try to find which mechanism of action could explain their differential expression patterns.
+
+-   Discuss what would be the next steps if that was your research project. Which experiments would you design next? How would you describe the results in a paper?
+
+    -   You can also have a look at other related papers (e.g., https://www.nature.com/articles/s41586-022-04686-1, https://www.ahajournals.org/doi/10.1161/ATVBAHA.123.319922)
+    -   Or look at follow-up papers from the same authors (e.g., https://link.springer.com/article/10.1007/s12035-022-02860-0)
 
 <sub>Icons taken from http://www.flaticon.com/</sub>
