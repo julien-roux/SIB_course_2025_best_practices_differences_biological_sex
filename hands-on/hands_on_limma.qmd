@@ -57,12 +57,13 @@ saveRDS(devtools::session_info(), "session_info_limma.rds")
 # Read in data
 
 ```{r}
-## Load RnagedSummarizedExperiment object and convert to DGEList
+## Load the prepared RangedSummarizedExperiment object and convert to DGEList
 rse <- readRDS("rse_SRP218156.rds") 
 dge <- SE2DGEList(rse)
 ```
 
 # Gene filtering
+
 ```{r}
 ## Visualize distribution before filtering (protein-coding genes only)
 plotDensities(edgeR::cpm(dge, log = T)[dge$genes$gene_type %in% "protein_coding", ], 

@@ -57,7 +57,7 @@ saveRDS(devtools::session_info(), "session_info_DESeq2.rds")
 # Read in data
 
 ```{r}
-## Load the RangedSummarizedExperiment object 
+## Load the prepared RangedSummarizedExperiment object and convert to DESeqDataSet
 rse <- readRDS("rse_SRP218156.rds")
 dds <- DESeqDataSet(rse, design = ~ 1) 
 ```

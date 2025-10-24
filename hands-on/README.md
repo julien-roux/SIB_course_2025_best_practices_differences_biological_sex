@@ -23,13 +23,29 @@ Raw and processed data are available from GEO [(accession GSE135752)](GEO:%20htt
 See the ![](dataset_retrieval_recount3.qmd) script where we end up saving the dataset in a `RangedSummarizedExperiment` object.
  
 - The differential expression analysis will be conducted with classical Bioconductor packages ![limma](https://genomebiology.biomedcentral.com/articles/10.1186/gb-2014-15-2-r29) or ![DESeq2](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-014-0550-8). The respective `.qmd` scripts are ![](hands_on_limma.qmd) and ![](hands_on_DESeq2.qmd) and you can choose the option you feel more comfortable with.
-- A slightly more complex way of analyzing the dataset, maybe more powerful, is shown in ![](hands_on_limma_advanced.qmd). Use it if you are already familiar with DE analysis with the limma packages
 
-## Installation
-It is recommended to have an up-to-date installation of R and Bioconductor packages
+## Some refresher on the DE analysis
+- SIB course [Introduction to bulk RNA-Seq: From Quality Control to Pathway Analysis](https://sib-swiss.github.io/RNAseq-introduction-training/course_schedule/).
+- The vignettes of DE analysis packages can be found here https://bioconductor.org/packages/release/bioc/html/limma.html and https://bioconductor.org/packages/release/bioc/html/DESeq2.html
 
-**TO DO: copy text from Unibas R course!!!** 
-**Add script to install all required packages** See `install_packages.R` from last year
-**Add info on how to clone repository**
-**host all scripts on Next Cloud: https://io.scicore.unibas.ch/?**
-**Section: A refresher on DE Analysis with DESeq2/limma? as Davide did last year?**
+## How to clone the repository?
+```
+git clone https://github.com/julien-roux/SIB_course_2025_best_practices_differences_biological_sex.git
+cd SIB_course_2025_best_practices_differences_biological_sex/hands-on
+```
+
+## R installation
+- __It is recommended to have an up-to-date installation of R on your computer, i.e., R version >= 4.5.1, available [here](https://cran.r-project.org/)__.
+- __Together with it, we strongly recommend you install [Rstudio](https://posit.co/download/rstudio-desktop/).__
+
+- Try running R before attending the course - you may need to set up the language. We recommend to have R/Rstudio in English. But setting this permanently is platform-dependent:
+  - On Windows, see [here](https://cran.r-project.org/bin/windows/base/rw-FAQ.html#I-want-R-in-English_0021).
+  - On Mac, see [here](https://cran.r-project.org/bin/macosx/RMacOSX-FAQ.html#Internationalization-of-the-R_002eapp).
+  - See also [here](https://stackoverflow.com/questions/13575180/how-to-change-language-settings-in-r).
+- You should also make sure that you can locate and type out special coding-related characters on your keyboard, such as parentheses `()`, square brackets `[]`, and curly brackets `{}`, as these are not always obvious to obtain on all keyboards. It is recommended that you find a dataset of your own to practice with, in addition to the course material. 
+
+- At the beginning of the `qmd` scripts you will find the list of packages loaded for the hands-on. To install the missing ones:
+```
+install.packages("BiocManager")
+BiocManager::install("...")
+```
