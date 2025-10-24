@@ -42,9 +42,9 @@ cd SIB_course_2025_best_practices_differences_biological_sex/hands-on
   - On Windows, see [here](https://cran.r-project.org/bin/windows/base/rw-FAQ.html#I-want-R-in-English_0021).
   - On Mac, see [here](https://cran.r-project.org/bin/macosx/RMacOSX-FAQ.html#Internationalization-of-the-R_002eapp).
   - See also [here](https://stackoverflow.com/questions/13575180/how-to-change-language-settings-in-r).
-- You should also make sure that you can locate and type out special coding-related characters on your keyboard, such as parentheses `()`, square brackets `[]`, and curly brackets `{}`, as these are not always obvious to obtain on all keyboards. It is recommended that you find a dataset of your own to practice with, in addition to the course material. 
+- You should also make sure that you can locate and type out special coding-related characters on your keyboard, such as parentheses `()`, square brackets `[]`, and curly brackets `{}`, as these are not always obvious to obtain on all keyboards. 
 
-- At the beginning of the `qmd` scripts you will find the list of packages loaded for the hands-on. To install the missing ones:
+- At the beginning of the `.qmd` scripts you will find the list of packages loaded for the hands-on. To install the missing ones:
 ```
 install.packages("BiocManager")
 BiocManager::install("...")

@@ -167,7 +167,7 @@ plotPCA(vst,
   scale_colour_manual(values=myPalette[1:6]) +
   coord_cartesian() 
 
-## Which sample metadata associate to which PCs?
+## Which sample metadata associate with which PCs?
 ## Let's use the getExplanatoryPCs from scater package, which takes as input a SingleCellExperiment object containing dimensionality reduction results
 select <- order(rowVars(assay(vst)))[seq_len(500)]
 pca1 <- prcomp(t(assay(vst)[select,]))
@@ -185,7 +185,7 @@ plotExplanatoryPCs(percentVar/100)
 ![](img/round-help-button.png) To which principal components contribute which factors? Does this corresponds to the expectations? What do you conclude on the relative effect size of different factors?
 
 ```{r}
-## Visualize how some of the factors separate on the PCA, for example sex is associated to PC3
+## Visualize how some of the factors separate on the PCA, for example sex is associated with PC3
 plotPCA(vst, 
         ntop = 500,
         intgroup=c("sex", "treatment"),
@@ -279,12 +279,12 @@ ggplot(df, aes(x=group, y=`Normalized expression`, group=tissue, col=tissue)) +
 
 ```{r}
 ## See Fig 4e and f
-data.frame(res[rowData(dds)$gene_name %in% c("Egr2", "Fos", "Dusp1", "Nr4a1", "Sik1", "Arc", "Egr1", "Plcl2", "Galnt9", "Per2", "Zbtb16", "Map3k13", "Banp"), ])
+data.frame(res[rowData(dds)$gene_name %in% c("Egr2", "Fos", "Dusp1", "Nr4a1", "Sik1", "Arc", "Egr1", "Plcl2", "Galnt9", "Per2", "Zbtb16", "Map3k13", "Banp"), ]) |> as_tibble() |> arrange(padj)
 ```
 
 ## Extracting the interaction term
 
-Although this is not tested explicitely, a main aim o fthe study is to identify genes reacting differently to Tamoxifen treatment in male and female. It is possible to test this by extracting the interaction between sex and tratment.
+Although this is not tested explicitely, a main aim of the study is to identify genes reacting differently to Tamoxifen treatment in male and female. It is possible to test this by extracting the interaction between sex and tratment.
 
 See `?DESeq2::results` explaining how to extract this effect (Example 3). We need to update the design in the DESeq2 object.
 

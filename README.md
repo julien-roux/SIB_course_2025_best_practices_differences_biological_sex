@@ -1,6 +1,8 @@
 # Best Practices for Investigating Gene Expression Differences by Biological Sex
 
-A course organized on Oct 27th, 2025 by the Swiss Institute of Bioinformatics. The course description and schedule can be found [here](https://www.sib.swiss/training/course/20251027_BIOSE).
+Julien Roux and Vidhya Jagannathan
+
+A course organized on Oct 27th, 2025 with the Swiss Institute of Bioinformatics training team. The course description and schedule can be found [here](https://www.sib.swiss/training/course/20251027_BIOSE).
 
 Sex and gender have been historically ignored as explanatory variables in transcriptomics studies, in particular because of the fear that additional study variables might escalate experimental costs and complicate data analysis. However recent policies from funding agencies and scientific journals require attention to sex and gender in research projects. More and more biologists now incorporate biological sex as an experimental variable, but how to do so appropriately can still be challenging.
 

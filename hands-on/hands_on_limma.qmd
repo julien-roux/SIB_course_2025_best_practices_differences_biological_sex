@@ -162,7 +162,7 @@ pca1 <- prcomp(t(log2cpm[sel,]), scale = T)
 summary(pca1)$importance[, 1:10]
 plot(pca1)
 
-## Which sample metadata associate to which PCs?
+## Which sample metadata associate with which PCs?
 ## Let's use the getExplanatoryPCs from scater package, which takes as input a SingleCellExperiment object containing dimensionality reduction results
 sce <- SingleCellExperiment(assays = list(logcounts=log2cpm),
                             reducedDims = list(PCA=pca1$x),

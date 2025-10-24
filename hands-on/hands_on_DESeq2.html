@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.45">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Julien Roux, University of Basel, SIB">
+<meta name="dcterms.date" content="2025-09-18">
+
+<title>Hands-on: studying the long-lasting effects of Tamoxifen treatment on the CNS transcriptome across sexes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="hands_on_DESeq2_files/libs/clipboard/clipboard.min.js"></script>
+<script src="hands_on_DESeq2_files/libs/quarto-html/quarto.js"></script>
+<script src="hands_on_DESeq2_files/libs/quarto-html/popper.min.js"></script>
+<script src="hands_on_DESeq2_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="hands_on_DESeq2_files/libs/quarto-html/anchor.min.js"></script>
+<link href="hands_on_DESeq2_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="hands_on_DESeq2_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="hands_on_DESeq2_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="hands_on_DESeq2_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="hands_on_DESeq2_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body>
+
+<header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Hands-on: studying the long-lasting effects of Tamoxifen treatment on the CNS transcriptome across sexes</h1>
+            <p class="subtitle lead">SIB course: Best Practices for Investigating Gene Expression Differences by Biological Sex</p>
+                      </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Julien Roux, University of Basel, SIB </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">September 18, 2025</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="page-columns page-rows-contents page-layout-article toc-left">
+<div id="quarto-sidebar-toc-left" class="sidebar toc-left">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#loading-data-in-r" id="toc-loading-data-in-r" class="nav-link active" data-scroll-target="#loading-data-in-r">Loading data in R</a></li>
+  <li><a href="#read-in-data" id="toc-read-in-data" class="nav-link" data-scroll-target="#read-in-data">Read in data</a></li>
+  <li><a href="#gene-filtering" id="toc-gene-filtering" class="nav-link" data-scroll-target="#gene-filtering">Gene filtering</a></li>
+  <li><a href="#qc-checks" id="toc-qc-checks" class="nav-link" data-scroll-target="#qc-checks">QC checks</a>
+  <ul class="collapse">
+  <li><a href="#expression-of-xist-gene" id="toc-expression-of-xist-gene" class="nav-link" data-scroll-target="#expression-of-xist-gene">Expression of <em>Xist</em> gene</a></li>
+  <li><a href="#expression-of-y-chromosome-genes" id="toc-expression-of-y-chromosome-genes" class="nav-link" data-scroll-target="#expression-of-y-chromosome-genes">Expression of Y-chromosome genes</a></li>
+  <li><a href="#principal-component-analysis" id="toc-principal-component-analysis" class="nav-link" data-scroll-target="#principal-component-analysis">Principal component analysis</a></li>
+  </ul></li>
+  <li><a href="#differential-expression-analysis" id="toc-differential-expression-analysis" class="nav-link" data-scroll-target="#differential-expression-analysis">Differential expression analysis</a>
+  <ul class="collapse">
+  <li><a href="#extracting-the-interaction-term" id="toc-extracting-the-interaction-term" class="nav-link" data-scroll-target="#extracting-the-interaction-term">Extracting the interaction term</a></li>
+  </ul></li>
+  <li><a href="#gsea" id="toc-gsea" class="nav-link" data-scroll-target="#gsea">GSEA</a></li>
+  <li><a href="#to-finish" id="toc-to-finish" class="nav-link" data-scroll-target="#to-finish">To finish</a></li>
+  </ul>
+</nav>
+</div>
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+</div>
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<section id="loading-data-in-r" class="level1">
+<h1>Loading data in R</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">## If packages are missing: install.packages('BiocManager')</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">## BiocManager::install('...')</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">## Setting up working directory</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="do">## color palettes</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RColorBrewer)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>myPalette <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">brewer.pal</span>(<span class="dv">9</span>, <span class="st">"Set1"</span>), <span class="fu">brewer.pal</span>(<span class="dv">8</span>, <span class="st">"Set2"</span>))</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="do">## DE analysis</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DESeq2)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(vsn)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(edgeR)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scater)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="do">## Needed for GSEA</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fgsea)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(org.Mm.eg.db)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(GO.db)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(devtools<span class="sc">::</span><span class="fu">session_info</span>(), <span class="st">"session_info_DESeq2.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="read-in-data" class="level1">
+<h1>Read in data</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Load the prepared RangedSummarizedExperiment object and convert to</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="do">## DESeqDataSet</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>rse <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"rse_SRP218156.rds"</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>dds <span class="ot">&lt;-</span> <span class="fu">DESeqDataSet</span>(rse, <span class="at">design =</span> <span class="sc">~</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="gene-filtering" class="level1">
+<h1>Gene filtering</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Apply count data transformation</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>vst <span class="ot">&lt;-</span> <span class="fu">varianceStabilizingTransformation</span>(dds, <span class="at">blind =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">meanSdPlot</span>(<span class="fu">assay</span>(vst), <span class="at">ranks =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: `aes_string()` was deprecated in ggplot2 3.0.0.
+ℹ Please use tidy evaluation idioms with `aes()`.
+ℹ See also `vignette("ggplot2-in-packages")` for more information.
+ℹ The deprecated feature was likely used in the vsn package.
+  Please report the issue to the authors.</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="hands_on_DESeq2_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Visualize distribution before filtering (protein-coding genes only)</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plotDensities</span>(<span class="fu">assay</span>(vst)[<span class="fu">rowData</span>(vst)<span class="sc">$</span>gene_type <span class="sc">==</span> <span class="st">"protein_coding"</span>, ], <span class="at">group =</span> dds<span class="sc">$</span>tissue,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">col =</span> myPalette, <span class="at">legend =</span> <span class="st">"topright"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="hands_on_DESeq2_files/figure-html/unnamed-chunk-3-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="do">## One cortex sample is weird: let's remove it</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>dds <span class="ot">&lt;-</span> dds[, <span class="fu">colnames</span>(dds) <span class="sc">!=</span> <span class="st">"ctx962"</span>]</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="do">## Filter lowly expressed genes We keep only rows that have a count of at least</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="do">## 10 for a minimal number of samples</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>smallestGroupSize <span class="ot">&lt;-</span> <span class="dv">3</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>keep <span class="ot">&lt;-</span> <span class="fu">rowSums</span>(<span class="fu">counts</span>(dds) <span class="sc">&gt;=</span> <span class="dv">10</span>) <span class="sc">&gt;=</span> smallestGroupSize</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(keep)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>keep
+FALSE  TRUE 
+30107 25314 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>dds <span class="ot">&lt;-</span> dds[keep, ]</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="do">## Update vst object</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>vst <span class="ot">&lt;-</span> <span class="fu">varianceStabilizingTransformation</span>(dds, <span class="at">blind =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">meanSdPlot</span>(<span class="fu">assay</span>(vst), <span class="at">ranks =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="hands_on_DESeq2_files/figure-html/unnamed-chunk-3-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotDensities</span>(<span class="fu">assay</span>(vst), <span class="at">group =</span> dds<span class="sc">$</span>group, <span class="at">col =</span> myPalette, <span class="at">legend =</span> <span class="st">"topright"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="hands_on_DESeq2_files/figure-html/unnamed-chunk-3-4.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotDensities</span>(<span class="fu">assay</span>(vst), <span class="at">group =</span> dds<span class="sc">$</span>tissue, <span class="at">col =</span> myPalette, <span class="at">legend =</span> <span class="st">"topright"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="hands_on_DESeq2_files/figure-html/unnamed-chunk-3-5.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><img src="img/round-help-button.png" class="img-fluid"> What do you observe?</p>
+</section>
+<section id="qc-checks" class="level1">
+<h1>QC checks</h1>
+<section id="expression-of-xist-gene" class="level2">
+<h2 class="anchored" data-anchor-id="expression-of-xist-gene">Expression of <em>Xist</em> gene</h2>
+<p>Xist is a lncRNA regulating the X-chromosome inactivation process in mammals, used to equalize the dosage of X-linked genes between female (XX) and male (XY). It should thus be expressed only in female samples</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">assay</span>(vst)[<span class="fu">grep</span>(<span class="st">"Xist"</span>, <span class="fu">rowData</span>(dds)<span class="sc">$</span>gene_name), , drop <span class="ot">=</span> <span class="cn">FALSE</span>] <span class="sc">|&gt;</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as_tibble</span>(<span class="at">rownames =</span> <span class="cn">NA</span>) <span class="sc">|&gt;</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rownames_to_column</span>() <span class="sc">|&gt;</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="at">Gene =</span> rowname) <span class="sc">|&gt;</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">colnames</span>(<span class="fu">assay</span>(vst)), <span class="at">names_to =</span> <span class="st">"Sample"</span>, <span class="at">values_to =</span> <span class="st">"Normalized expression"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">left_join</span>(<span class="at">y =</span> <span class="fu">as_tibble</span>(<span class="fu">colData</span>(dds)), <span class="at">by =</span> <span class="fu">join_by</span>(<span class="st">"Sample"</span> <span class="sc">==</span> <span class="st">"sra.sample_title"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">left_join</span>(<span class="at">y =</span> <span class="fu">as_tibble</span>(<span class="fu">rowData</span>(dds)), <span class="at">by =</span> <span class="fu">join_by</span>(<span class="st">"Gene"</span> <span class="sc">==</span> <span class="st">"gene_id"</span>))</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> group, <span class="at">y =</span> <span class="st">`</span><span class="at">Normalized expression</span><span class="st">`</span>, <span class="at">colour =</span> tissue, <span class="at">group =</span> tissue)) <span class="sc">+</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span>gene_name, <span class="at">scales =</span> <span class="st">"free_y"</span>, <span class="at">ncol =</span> <span class="dv">1</span>) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="fl">0.2</span>),</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.8</span>, <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span> <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> myPalette[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">10</span>,</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">angle =</span> <span class="dv">90</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">vjust =</span> <span class="fl">0.5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="hands_on_DESeq2_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="expression-of-y-chromosome-genes" class="level2">
+<h2 class="anchored" data-anchor-id="expression-of-y-chromosome-genes">Expression of Y-chromosome genes</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Chromosome information</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(<span class="fu">as.data.frame</span>(<span class="fu">rowRanges</span>(dds))<span class="sc">$</span>seqnames)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "chr1"       "chr2"       "chr3"       "chr4"       "chr5"      
+ [6] "chr6"       "chr7"       "chr8"       "chr9"       "chr10"     
+[11] "chr11"      "chr12"      "chr13"      "chr14"      "chr15"     
+[16] "chr16"      "chr17"      "chr18"      "chr19"      "chrX"      
+[21] "chrY"       "chrM"       "GL456210.1" "GL456211.1" "GL456212.1"
+[26] "GL456216.1" "GL456219.1" "GL456221.1" "GL456233.1" "GL456239.1"
+[31] "GL456350.1" "GL456354.1" "GL456372.1" "GL456381.1" "GL456385.1"
+[36] "JH584292.1" "JH584293.1" "JH584294.1" "JH584295.1" "JH584296.1"
+[41] "JH584297.1" "JH584298.1" "JH584299.1" "JH584303.1" "JH584304.1"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="do">## How many genes are left in our dataset after filtering?</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(<span class="fu">as.data.frame</span>(<span class="fu">rowRanges</span>(dds))<span class="sc">$</span>seqnames <span class="sc">==</span> <span class="st">"chrY"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+FALSE  TRUE 
+25300    14 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">assay</span>(vst)[<span class="fu">as.data.frame</span>(<span class="fu">rowRanges</span>(dds))<span class="sc">$</span>seqnames <span class="sc">==</span> <span class="st">"chrY"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>] <span class="sc">|&gt;</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as_tibble</span>(<span class="at">rownames =</span> <span class="cn">NA</span>) <span class="sc">|&gt;</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rownames_to_column</span>() <span class="sc">|&gt;</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="at">Gene =</span> rowname) <span class="sc">|&gt;</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">colnames</span>(<span class="fu">assay</span>(vst)), <span class="at">names_to =</span> <span class="st">"Sample"</span>, <span class="at">values_to =</span> <span class="st">"Normalized expression"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">left_join</span>(<span class="at">y =</span> <span class="fu">as_tibble</span>(<span class="fu">colData</span>(dds)), <span class="at">by =</span> <span class="fu">join_by</span>(<span class="st">"Sample"</span> <span class="sc">==</span> <span class="st">"sra.sample_title"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">left_join</span>(<span class="at">y =</span> <span class="fu">as_tibble</span>(<span class="fu">rowData</span>(dds)), <span class="at">by =</span> <span class="fu">join_by</span>(<span class="st">"Gene"</span> <span class="sc">==</span> <span class="st">"gene_id"</span>))</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> group, <span class="at">y =</span> <span class="st">`</span><span class="at">Normalized expression</span><span class="st">`</span>, <span class="at">colour =</span> tissue, <span class="at">group =</span> tissue)) <span class="sc">+</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span>gene_name, <span class="at">scales =</span> <span class="st">"free_y"</span>, <span class="at">ncol =</span> <span class="dv">4</span>) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="fl">0.2</span>),</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.8</span>, <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span> <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> myPalette[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">10</span>,</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">angle =</span> <span class="dv">90</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">vjust =</span> <span class="fl">0.5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="hands_on_DESeq2_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><img src="img/round-help-button.png" class="img-fluid"> What do you observe? What is going on for some genes? (e.g., <em>Gm20775</em>)</p>
+<p><img src="img/elemental-tip.png" class="img-fluid"> Bigwig files are available through recount3 for some of the samples and allow to visualize the read coverage (for example on the Y-chromosome) on a genome browser. For example you can provide these links to the UCSC genome browser directly:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span>(dds<span class="sc">$</span>BigWigURL)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "http://duffel.rail.bio/recount3/mouse/data_sources/sra/base_sums/56/SRP218156/14/sra.base_sums.SRP218156_SRR9956114.ALL.bw"
+[2] "http://duffel.rail.bio/recount3/mouse/data_sources/sra/base_sums/56/SRP218156/15/sra.base_sums.SRP218156_SRR9956115.ALL.bw"
+[3] "http://duffel.rail.bio/recount3/mouse/data_sources/sra/base_sums/56/SRP218156/16/sra.base_sums.SRP218156_SRR9956116.ALL.bw"
+[4] "http://duffel.rail.bio/recount3/mouse/data_sources/sra/base_sums/56/SRP218156/17/sra.base_sums.SRP218156_SRR9956117.ALL.bw"
+[5] "http://duffel.rail.bio/recount3/mouse/data_sources/sra/base_sums/56/SRP218156/18/sra.base_sums.SRP218156_SRR9956118.ALL.bw"
+[6] "http://duffel.rail.bio/recount3/mouse/data_sources/sra/base_sums/56/SRP218156/19/sra.base_sums.SRP218156_SRR9956119.ALL.bw"</code></pre>
+</div>
+</div>
+</section>
+<section id="principal-component-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="principal-component-analysis">Principal component analysis</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="do">## PCA on top 500 most variable genes</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plotPCA</span>(vst, <span class="at">ntop =</span> <span class="dv">500</span>, <span class="at">intgroup =</span> <span class="fu">c</span>(<span class="st">"tissue"</span>, <span class="st">"treatment"</span>), <span class="at">pcsToUse =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>) <span class="sc">+</span> <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> myPalette[<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>]) <span class="sc">+</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">coord_cartesian</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: `aes_string()` was deprecated in ggplot2 3.0.0.
+ℹ Please use tidy evaluation idioms with `aes()`.
+ℹ See also `vignette("ggplot2-in-packages")` for more information.
+ℹ The deprecated feature was likely used in the DESeq2 package.
+  Please report the issue to the authors.</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="hands_on_DESeq2_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Which sample metadata associate with which PCs?  Let's use the</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="do">## getExplanatoryPCs from scater package, which takes as input a</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="do">## SingleCellExperiment object containing dimensionality reduction results</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>select <span class="ot">&lt;-</span> <span class="fu">order</span>(<span class="fu">rowVars</span>(<span class="fu">assay</span>(vst)))[<span class="fu">seq_len</span>(<span class="dv">500</span>)]</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>pca1 <span class="ot">&lt;-</span> <span class="fu">prcomp</span>(<span class="fu">t</span>(<span class="fu">assay</span>(vst)[select, ]))</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>sce <span class="ot">&lt;-</span> <span class="fu">SingleCellExperiment</span>(<span class="at">assays =</span> <span class="fu">list</span>(<span class="at">logcounts =</span> <span class="fu">assay</span>(vst)), <span class="at">reducedDims =</span> <span class="fu">list</span>(<span class="at">PCA =</span> pca1<span class="sc">$</span>x),</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">colData =</span> <span class="fu">colData</span>(dds))</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>percentVar <span class="ot">&lt;-</span> <span class="fu">getExplanatoryPCs</span>(sce, <span class="at">n_dimred =</span> <span class="dv">10</span>, <span class="at">dimred =</span> <span class="st">"PCA"</span>, <span class="at">variables =</span> <span class="fu">c</span>(<span class="st">"sex"</span>,</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"treatment"</span>, <span class="st">"tissue"</span>, <span class="st">"mouse"</span>))</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>percentVar</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>             sex    treatment      tissue     mouse
+PC1   0.08917004 9.422612e-04 97.92539861  1.381346
+PC2   2.45601265 9.015570e-01 74.79962183 10.171582
+PC3   6.36324078 8.130475e-01 17.72737215 21.730139
+PC4   2.39989264 1.632724e+00  1.91413939 27.651006
+PC5  11.16248845 5.743221e+00  1.07570712 42.553952
+PC6  12.71284527 1.084092e+01  3.83104620 48.198551
+PC7   3.07354419 2.075584e+01  0.02692745 37.307078
+PC8   1.86300352 2.851629e+00  0.53194722 45.755141
+PC9   1.95180942 1.819178e+01  0.08900467 58.206626
+PC10  0.05528160 4.696096e-02  0.34506755 29.943165</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotExplanatoryPCs</span>(percentVar<span class="sc">/</span><span class="dv">100</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="hands_on_DESeq2_files/figure-html/unnamed-chunk-7-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><img src="img/round-help-button.png" class="img-fluid"> To which principal components contribute which factors? Does this corresponds to the expectations? What do you conclude on the relative effect size of different factors?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Visualize how some of the factors separate on the PCA, for example sex is</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="do">## associated with PC3</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plotPCA</span>(vst, <span class="at">ntop =</span> <span class="dv">500</span>, <span class="at">intgroup =</span> <span class="fu">c</span>(<span class="st">"sex"</span>, <span class="st">"treatment"</span>), <span class="at">pcsToUse =</span> <span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>) <span class="sc">+</span> <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> myPalette[<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>]) <span class="sc">+</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">coord_cartesian</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="hands_on_DESeq2_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="differential-expression-analysis" class="level1">
+<h1>Differential expression analysis</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Update design for DE analysis</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">design</span>(dds) <span class="ot">&lt;-</span> <span class="er">~</span><span class="dv">0</span> <span class="sc">+</span> group <span class="sc">+</span> tissue</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="do">## Launch differential expression analysis</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>dds <span class="ot">&lt;-</span> <span class="fu">DESeq</span>(dds)</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="fu">resultsNames</span>(dds)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "groupVehicle.female"   "groupTamoxifen.female" "groupVehicle.male"    
+[4] "groupTamoxifen.male"   "tissueHippocampus"     "tissueRetina"         </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Extract results for the different contrasts - Direct male vs. female</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="do">## comparison (in controls only) #######################</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">results</span>(dds, <span class="at">contrast =</span> <span class="fu">c</span>(<span class="st">"group"</span>, <span class="st">"Vehicle.male"</span>, <span class="st">"Vehicle.female"</span>))</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+out of 25314 with nonzero total read count
+adjusted p-value &lt; 0.1
+LFC &gt; 0 (up)       : 19, 0.075%
+LFC &lt; 0 (down)     : 46, 0.18%
+outliers [1]       : 45, 0.18%
+low counts [2]     : 5392, 21%
+(mean count &lt; 20)
+[1] see 'cooksCutoff' argument of ?results
+[2] see 'independentFiltering' argument of ?results</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">cbind</span>(res, <span class="fu">rowData</span>(dds)<span class="sc">$</span>gene_name)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(res[<span class="fu">order</span>(res<span class="sc">$</span>pvalue), ], <span class="at">n =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>DataFrame with 10 rows and 7 columns
+                     baseMean log2FoldChange     lfcSE      stat       pvalue
+                    &lt;numeric&gt;      &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt;    &lt;numeric&gt;
+ENSMUSG00000069045  1296.4534      10.289768 0.3405561   30.2146 1.52292e-200
+ENSMUSG00000056673   610.3640       8.736114 0.3096079   28.2167 3.64787e-175
+ENSMUSG00000086503 15993.1573      -9.743607 0.4468543  -21.8049 2.08535e-105
+ENSMUSG00000085715   986.8578      -8.190900 0.4309121  -19.0083  1.45637e-80
+ENSMUSG00000069049   748.8289      11.095832 0.5970270   18.5851  4.23872e-77
+ENSMUSG00000068457   497.0480      10.134968 0.5745282   17.6405  1.20378e-69
+ENSMUSG00000035150  3743.6424      -0.656745 0.0388829  -16.8903  5.30097e-64
+ENSMUSG00000098743   160.1305     -10.086746 0.6175810  -16.3327  5.78005e-60
+ENSMUSG00000099312    66.7999      -9.216776 0.6228512  -14.7977  1.51541e-49
+ENSMUSG00000098262    44.8669      -8.584013 0.6358488  -13.5001  1.56195e-41
+                           padj rowData(dds)$gene_name
+                      &lt;numeric&gt;            &lt;character&gt;
+ENSMUSG00000069045 3.02712e-196                  Ddx3y
+ENSMUSG00000056673 3.62544e-171                  Kdm5d
+ENSMUSG00000086503 1.38169e-101                   Xist
+ENSMUSG00000085715  7.23706e-77                   Tsix
+ENSMUSG00000069049  1.68506e-73                Eif2s3y
+ENSMUSG00000068457  3.98792e-66                    Uty
+ENSMUSG00000035150  1.50525e-60                Eif2s3x
+ENSMUSG00000098743  1.43613e-56                Gm27927
+ENSMUSG00000099312  3.34686e-46                Gm27733
+ENSMUSG00000098262  3.10469e-38                Gm27520</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="do">## For visualization: since we account for tissue in the model, it makes sense</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="do">## to correct the expression values for this effect</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>mm <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="sc">~</span>group, <span class="fu">colData</span>(vst))</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>mat <span class="ot">&lt;-</span> <span class="fu">removeBatchEffect</span>(<span class="fu">assay</span>(vst), <span class="at">batch =</span> vst<span class="sc">$</span>tissue, <span class="at">design =</span> mm)</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>vst.corrected <span class="ot">&lt;-</span> vst</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a><span class="fu">assay</span>(vst.corrected) <span class="ot">&lt;-</span> mat</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">assay</span>(vst.corrected)[<span class="fu">row.names</span>(<span class="fu">head</span>(res[<span class="fu">order</span>(res<span class="sc">$</span>pvalue), ], <span class="at">n =</span> <span class="dv">10</span>)), ] <span class="sc">|&gt;</span></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as_tibble</span>(<span class="at">rownames =</span> <span class="cn">NA</span>) <span class="sc">|&gt;</span></span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rownames_to_column</span>() <span class="sc">|&gt;</span></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="at">Gene =</span> rowname) <span class="sc">|&gt;</span></span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">colnames</span>(<span class="fu">assay</span>(vst.corrected)), <span class="at">names_to =</span> <span class="st">"Sample"</span>, <span class="at">values_to =</span> <span class="st">"Normalized expression"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">left_join</span>(<span class="at">y =</span> <span class="fu">as_tibble</span>(<span class="fu">colData</span>(dds)), <span class="at">by =</span> <span class="fu">join_by</span>(<span class="st">"Sample"</span> <span class="sc">==</span> <span class="st">"sra.sample_title"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">left_join</span>(<span class="at">y =</span> <span class="fu">as_tibble</span>(<span class="fu">rowData</span>(dds)), <span class="at">by =</span> <span class="fu">join_by</span>(<span class="st">"Gene"</span> <span class="sc">==</span> <span class="st">"gene_id"</span>))</span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> group, <span class="at">y =</span> <span class="st">`</span><span class="at">Normalized expression</span><span class="st">`</span>, <span class="at">group =</span> tissue, <span class="at">col =</span> tissue)) <span class="sc">+</span></span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span>gene_name, <span class="at">scales =</span> <span class="st">"free_y"</span>, <span class="at">ncol =</span> <span class="dv">5</span>) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="fl">0.2</span>),</span>
+<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.8</span>, <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span> <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> myPalette[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">10</span>,</span>
+<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">angle =</span> <span class="dv">90</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">vjust =</span> <span class="fl">0.5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="hands_on_DESeq2_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># - effect of Tamoxifen treatment in males</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="co"># #####################################</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">results</span>(dds, <span class="at">contrast =</span> <span class="fu">c</span>(<span class="st">"group"</span>, <span class="st">"Tamoxifen.male"</span>, <span class="st">"Vehicle.male"</span>))</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+out of 25314 with nonzero total read count
+adjusted p-value &lt; 0.1
+LFC &gt; 0 (up)       : 18, 0.071%
+LFC &lt; 0 (down)     : 32, 0.13%
+outliers [1]       : 45, 0.18%
+low counts [2]     : 7839, 31%
+(mean count &lt; 53)
+[1] see 'cooksCutoff' argument of ?results
+[2] see 'independentFiltering' argument of ?results</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">cbind</span>(res, <span class="fu">rowData</span>(dds)<span class="sc">$</span>gene_name)</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(res[<span class="fu">order</span>(res<span class="sc">$</span>pvalue), ], <span class="at">n =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>DataFrame with 10 rows and 7 columns
+                    baseMean log2FoldChange     lfcSE      stat      pvalue
+                   &lt;numeric&gt;      &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt;   &lt;numeric&gt;
+ENSMUSG00000066687 1775.0417      -0.979866 0.1059546  -9.24798 2.28771e-20
+ENSMUSG00000022602 8859.8087       0.580085 0.0765352   7.57932 3.47379e-14
+ENSMUSG00000021250 1608.6033       0.524210 0.0791697   6.62135 3.55943e-11
+ENSMUSG00000025316 1183.0364      -0.371149 0.0604447  -6.14031 8.23621e-10
+ENSMUSG00000025324  412.8755      -0.503888 0.0911208  -5.52989 3.20438e-08
+ENSMUSG00000032193 1258.5556       0.405530 0.0736310   5.50761 3.63748e-08
+ENSMUSG00000025952   34.6641      17.659165 3.2301709   5.46694 4.57859e-08
+ENSMUSG00000021311 1365.3794      -0.302927 0.0607354  -4.98766 6.11158e-07
+ENSMUSG00000037112 1931.8700      -0.342715 0.0710251  -4.82526 1.39820e-06
+ENSMUSG00000008090  545.7222       0.333664 0.0693645   4.81030 1.50700e-06
+                          padj rowData(dds)$gene_name
+                     &lt;numeric&gt;            &lt;character&gt;
+ENSMUSG00000066687 3.98747e-16                 Zbtb16
+ENSMUSG00000022602 3.02741e-10                    Arc
+ENSMUSG00000021250 2.06803e-07                    Fos
+ENSMUSG00000025316 3.58893e-06                   Banp
+ENSMUSG00000025324 1.05669e-04                 Atp10a
+ENSMUSG00000032193 1.05669e-04                   Ldlr
+ENSMUSG00000025952          NA                  Crygc
+ENSMUSG00000021311 1.52178e-03                    Mtr
+ENSMUSG00000037112 2.91856e-03                   Sik2
+ENSMUSG00000008090 2.91856e-03                 Fgfrl1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">assay</span>(vst.corrected)[<span class="fu">row.names</span>(<span class="fu">head</span>(res[<span class="fu">order</span>(res<span class="sc">$</span>pvalue), ], <span class="at">n =</span> <span class="dv">10</span>)), ] <span class="sc">|&gt;</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as_tibble</span>(<span class="at">rownames =</span> <span class="cn">NA</span>) <span class="sc">|&gt;</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rownames_to_column</span>() <span class="sc">|&gt;</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="at">Gene =</span> rowname) <span class="sc">|&gt;</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">colnames</span>(<span class="fu">assay</span>(vst.corrected)), <span class="at">names_to =</span> <span class="st">"Sample"</span>, <span class="at">values_to =</span> <span class="st">"Normalized expression"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">left_join</span>(<span class="at">y =</span> <span class="fu">as_tibble</span>(<span class="fu">colData</span>(dds)), <span class="at">by =</span> <span class="fu">join_by</span>(<span class="st">"Sample"</span> <span class="sc">==</span> <span class="st">"sra.sample_title"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">left_join</span>(<span class="at">y =</span> <span class="fu">as_tibble</span>(<span class="fu">rowData</span>(dds)), <span class="at">by =</span> <span class="fu">join_by</span>(<span class="st">"Gene"</span> <span class="sc">==</span> <span class="st">"gene_id"</span>))</span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> group, <span class="at">y =</span> <span class="st">`</span><span class="at">Normalized expression</span><span class="st">`</span>, <span class="at">group =</span> tissue, <span class="at">col =</span> tissue)) <span class="sc">+</span></span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span>gene_name, <span class="at">scales =</span> <span class="st">"free_y"</span>, <span class="at">ncol =</span> <span class="dv">5</span>) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="fl">0.2</span>),</span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.8</span>, <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span> <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> myPalette[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">10</span>,</span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">angle =</span> <span class="dv">90</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">vjust =</span> <span class="fl">0.5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="hands_on_DESeq2_files/figure-html/unnamed-chunk-9-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># - effect of Tamoxifen treatment in females</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ###################################</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">results</span>(dds, <span class="at">contrast =</span> <span class="fu">c</span>(<span class="st">"group"</span>, <span class="st">"Tamoxifen.female"</span>, <span class="st">"Vehicle.female"</span>))</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+out of 25314 with nonzero total read count
+adjusted p-value &lt; 0.1
+LFC &gt; 0 (up)       : 59, 0.23%
+LFC &lt; 0 (down)     : 227, 0.9%
+outliers [1]       : 45, 0.18%
+low counts [2]     : 9310, 37%
+(mean count &lt; 94)
+[1] see 'cooksCutoff' argument of ?results
+[2] see 'independentFiltering' argument of ?results</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">cbind</span>(res, <span class="fu">rowData</span>(dds)<span class="sc">$</span>gene_name)</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(res[<span class="fu">order</span>(res<span class="sc">$</span>pvalue), ], <span class="at">n =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>DataFrame with 10 rows and 7 columns
+                    baseMean log2FoldChange     lfcSE      stat      pvalue
+                   &lt;numeric&gt;      &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt;   &lt;numeric&gt;
+ENSMUSG00000025316  1183.036      -0.666516 0.0640143 -10.41199 2.18611e-25
+ENSMUSG00000004328   262.763      -1.162027 0.1210255  -9.60151 7.87826e-22
+ENSMUSG00000066687  1775.042      -0.841603 0.1119219  -7.51956 5.49616e-14
+ENSMUSG00000020484  3255.452      -0.332475 0.0466068  -7.13362 9.77653e-13
+ENSMUSG00000021250  1608.603       0.579880 0.0833544   6.95680 3.48095e-12
+ENSMUSG00000026773  2180.037      -0.412198 0.0611925  -6.73609 1.62704e-11
+ENSMUSG00000024222  2141.045      -0.438681 0.0671178  -6.53599 6.31885e-11
+ENSMUSG00000035877  3491.865      -0.278293 0.0429140  -6.48491 8.87857e-11
+ENSMUSG00000037868   349.935       1.083647 0.1677509   6.45986 1.04803e-10
+ENSMUSG00000032846  1792.367      -0.408770 0.0633040  -6.45726 1.06613e-10
+                          padj rowData(dds)$gene_name
+                     &lt;numeric&gt;            &lt;character&gt;
+ENSMUSG00000025316 3.48881e-21                   Banp
+ENSMUSG00000004328 6.28646e-18                  Hif3a
+ENSMUSG00000066687 2.92378e-10                 Zbtb16
+ENSMUSG00000020484 3.90059e-09                   Xbp1
+ENSMUSG00000021250 1.11105e-08                    Fos
+ENSMUSG00000026773 4.32765e-08                 Pfkfb3
+ENSMUSG00000024222 1.44061e-07                  Fkbp5
+ENSMUSG00000035877 1.70143e-07                   Zhx3
+ENSMUSG00000037868 1.70143e-07                   Egr2
+ENSMUSG00000032846 1.70143e-07                 Zswim6</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">assay</span>(vst.corrected)[<span class="fu">row.names</span>(<span class="fu">head</span>(res[<span class="fu">order</span>(res<span class="sc">$</span>pvalue), ], <span class="at">n =</span> <span class="dv">10</span>)), ] <span class="sc">|&gt;</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as_tibble</span>(<span class="at">rownames =</span> <span class="cn">NA</span>) <span class="sc">|&gt;</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rownames_to_column</span>() <span class="sc">|&gt;</span></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="at">Gene =</span> rowname) <span class="sc">|&gt;</span></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">colnames</span>(<span class="fu">assay</span>(vst.corrected)), <span class="at">names_to =</span> <span class="st">"Sample"</span>, <span class="at">values_to =</span> <span class="st">"Normalized expression"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">left_join</span>(<span class="at">y =</span> <span class="fu">as_tibble</span>(<span class="fu">colData</span>(dds)), <span class="at">by =</span> <span class="fu">join_by</span>(<span class="st">"Sample"</span> <span class="sc">==</span> <span class="st">"sra.sample_title"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">left_join</span>(<span class="at">y =</span> <span class="fu">as_tibble</span>(<span class="fu">rowData</span>(dds)), <span class="at">by =</span> <span class="fu">join_by</span>(<span class="st">"Gene"</span> <span class="sc">==</span> <span class="st">"gene_id"</span>))</span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> group, <span class="at">y =</span> <span class="st">`</span><span class="at">Normalized expression</span><span class="st">`</span>, <span class="at">group =</span> tissue, <span class="at">col =</span> tissue)) <span class="sc">+</span></span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span>gene_name, <span class="at">scales =</span> <span class="st">"free_y"</span>, <span class="at">ncol =</span> <span class="dv">5</span>) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="fl">0.2</span>),</span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.8</span>, <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span> <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> myPalette[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">10</span>,</span>
+<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">angle =</span> <span class="dv">90</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">vjust =</span> <span class="fl">0.5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="hands_on_DESeq2_files/figure-html/unnamed-chunk-9-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><img src="img/round-help-button.png" class="img-fluid"> Do the number of DE genes correspond to your expectations from the PCA? What would you conclude on the difference of Tamoxifen effects in male and female? Are some of these genes described in the original paper?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="do">## See Fig 4e and f</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(res[<span class="fu">rowData</span>(dds)<span class="sc">$</span>gene_name <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Egr2"</span>, <span class="st">"Fos"</span>, <span class="st">"Dusp1"</span>, <span class="st">"Nr4a1"</span>, <span class="st">"Sik1"</span>,</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Arc"</span>, <span class="st">"Egr1"</span>, <span class="st">"Plcl2"</span>, <span class="st">"Galnt9"</span>, <span class="st">"Per2"</span>, <span class="st">"Zbtb16"</span>, <span class="st">"Map3k13"</span>, <span class="st">"Banp"</span>), ]) <span class="sc">|&gt;</span></span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span></span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">arrange</span>(padj)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 13 × 7
+   baseMean log2FoldChange  lfcSE   stat   pvalue     padj
+      &lt;dbl&gt;          &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
+ 1    1183.         -0.667 0.0640 -10.4  2.19e-25 3.49e-21
+ 2    1775.         -0.842 0.112   -7.52 5.50e-14 2.92e-10
+ 3    1609.          0.580 0.0834   6.96 3.48e-12 1.11e- 8
+ 4     350.          1.08  0.168    6.46 1.05e-10 1.70e- 7
+ 5    3316.          0.464 0.0803   5.77 7.79e- 9 7.28e- 6
+ 6    1502.         -0.461 0.0836  -5.51 3.50e- 8 2.33e- 5
+ 7    2229.         -0.302 0.0556  -5.42 5.88e- 8 3.75e- 5
+ 8    8860.          0.319 0.0805   3.96 7.50e- 5 1.16e- 2
+ 9    9691.          0.437 0.111    3.95 7.89e- 5 1.20e- 2
+10    1210.          0.323 0.0836   3.87 1.10e- 4 1.53e- 2
+11    2458.         -0.159 0.0610  -2.61 8.97e- 3 2.37e- 1
+12     672.          0.233 0.100    2.32 2.04e- 2 3.49e- 1
+13    3574.         -0.152 0.0741  -2.05 4.06e- 2 4.66e- 1
+# ℹ 1 more variable: rowData.dds..gene_name &lt;chr&gt;</code></pre>
+</div>
+</div>
+<section id="extracting-the-interaction-term" class="level2">
+<h2 class="anchored" data-anchor-id="extracting-the-interaction-term">Extracting the interaction term</h2>
+<p>Although this is not tested explicitely, a main aim of the study is to identify genes reacting differently to Tamoxifen treatment in male and female. It is possible to test this by extracting the interaction between sex and tratment.</p>
+<p>See <code>?DESeq2::results</code> explaining how to extract this effect (Example 3). We need to update the design in the DESeq2 object.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">design</span>(dds) <span class="ot">&lt;-</span> <span class="er">~</span>tissue <span class="sc">+</span> treatment <span class="sc">*</span> sex</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>dds <span class="ot">&lt;-</span> <span class="fu">DESeq</span>(dds)</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a><span class="fu">resultsNames</span>(dds)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Intercept"                      "tissue_Hippocampus_vs_Cortex"  
+[3] "tissue_Retina_vs_Cortex"        "treatment_Tamoxifen_vs_Vehicle"
+[5] "sex_male_vs_female"             "treatmentTamoxifen.sexmale"    </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Select the last coefficient</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">results</span>(dds, <span class="at">name =</span> <span class="st">"treatmentTamoxifen.sexmale"</span>)</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+out of 25314 with nonzero total read count
+adjusted p-value &lt; 0.1
+LFC &gt; 0 (up)       : 3, 0.012%
+LFC &lt; 0 (down)     : 0, 0%
+outliers [1]       : 45, 0.18%
+low counts [2]     : 0, 0%
+(mean count &lt; 1)
+[1] see 'cooksCutoff' argument of ?results
+[2] see 'independentFiltering' argument of ?results</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">cbind</span>(res, <span class="fu">rowData</span>(dds)<span class="sc">$</span>gene_name)</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(res[<span class="fu">order</span>(res<span class="sc">$</span>pvalue), ], <span class="at">n =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>DataFrame with 10 rows and 7 columns
+                     baseMean log2FoldChange     lfcSE      stat      pvalue
+                    &lt;numeric&gt;      &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt;   &lt;numeric&gt;
+ENSMUSG00000004328   262.7627       0.996614 0.1662446   5.99487 2.03654e-09
+ENSMUSG00000056673   610.3640       3.800710 0.6739355   5.63958 1.70470e-08
+ENSMUSG00000025952    34.6641      25.644635 4.6820234   5.47725 4.31975e-08
+ENSMUSG00000030168  3687.4690       0.223268 0.0542939   4.11220 3.91904e-05
+ENSMUSG00000091462    34.0167      -1.339289 0.3349684  -3.99825 6.38116e-05
+ENSMUSG00000052040  6658.2761       0.291482 0.0729475   3.99578 6.44803e-05
+ENSMUSG00000037754  4999.1823       0.277067 0.0695490   3.98377 6.78306e-05
+ENSMUSG00000032846  1792.3669       0.338061 0.0871774   3.87785 1.05386e-04
+ENSMUSG00000025386 29594.0578      -1.676026 0.4442314  -3.77287 1.61383e-04
+ENSMUSG00000031431  3227.1025       0.334079 0.0927399   3.60232 3.15390e-04
+                          padj rowData(dds)$gene_name
+                     &lt;numeric&gt;            &lt;character&gt;
+ENSMUSG00000004328 5.14613e-05                  Hif3a
+ENSMUSG00000056673 2.15381e-04                  Kdm5d
+ENSMUSG00000025952 3.63852e-04                  Crygc
+ENSMUSG00000030168 2.44859e-01                Adipor2
+ENSMUSG00000091462 2.44859e-01                Gm17084
+ENSMUSG00000052040 2.44859e-01                  Klf13
+ENSMUSG00000037754 2.44859e-01               Ppp1r16b
+ENSMUSG00000032846 3.32874e-01                 Zswim6
+ENSMUSG00000025386 4.53110e-01                  Pde6g
+ENSMUSG00000031431 7.24782e-01                Tsc22d3</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">assay</span>(vst.corrected)[<span class="fu">row.names</span>(<span class="fu">head</span>(res[<span class="fu">order</span>(res<span class="sc">$</span>pvalue), ], <span class="at">n =</span> <span class="dv">3</span>)), ] <span class="sc">|&gt;</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as_tibble</span>(<span class="at">rownames =</span> <span class="cn">NA</span>) <span class="sc">|&gt;</span></span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rownames_to_column</span>() <span class="sc">|&gt;</span></span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="at">Gene =</span> rowname) <span class="sc">|&gt;</span></span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">colnames</span>(<span class="fu">assay</span>(vst.corrected)), <span class="at">names_to =</span> <span class="st">"Sample"</span>, <span class="at">values_to =</span> <span class="st">"Normalized expression"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">left_join</span>(<span class="at">y =</span> <span class="fu">as_tibble</span>(<span class="fu">colData</span>(dds)), <span class="at">by =</span> <span class="fu">join_by</span>(<span class="st">"Sample"</span> <span class="sc">==</span> <span class="st">"sra.sample_title"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">left_join</span>(<span class="at">y =</span> <span class="fu">as_tibble</span>(<span class="fu">rowData</span>(dds)), <span class="at">by =</span> <span class="fu">join_by</span>(<span class="st">"Gene"</span> <span class="sc">==</span> <span class="st">"gene_id"</span>))</span>
+<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> group, <span class="at">y =</span> <span class="st">`</span><span class="at">Normalized expression</span><span class="st">`</span>, <span class="at">group =</span> tissue, <span class="at">col =</span> tissue)) <span class="sc">+</span></span>
+<span id="cb50-9"><a href="#cb50-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span>gene_name, <span class="at">scales =</span> <span class="st">"free_y"</span>, <span class="at">ncol =</span> <span class="dv">5</span>) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="fl">0.2</span>),</span>
+<span id="cb50-10"><a href="#cb50-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.8</span>, <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span> <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> myPalette[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">10</span>,</span>
+<span id="cb50-11"><a href="#cb50-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">angle =</span> <span class="dv">90</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">vjust =</span> <span class="fl">0.5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="hands_on_DESeq2_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Looking using uncorrected expression levels</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">assay</span>(vst)[<span class="fu">row.names</span>(<span class="fu">head</span>(res[<span class="fu">order</span>(res<span class="sc">$</span>pvalue), ], <span class="at">n =</span> <span class="dv">3</span>)), ] <span class="sc">|&gt;</span></span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as_tibble</span>(<span class="at">rownames =</span> <span class="cn">NA</span>) <span class="sc">|&gt;</span></span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rownames_to_column</span>() <span class="sc">|&gt;</span></span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="at">Gene =</span> rowname) <span class="sc">|&gt;</span></span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">colnames</span>(<span class="fu">assay</span>(vst)), <span class="at">names_to =</span> <span class="st">"Sample"</span>, <span class="at">values_to =</span> <span class="st">"Normalized expression"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">left_join</span>(<span class="at">y =</span> <span class="fu">as_tibble</span>(<span class="fu">colData</span>(dds)), <span class="at">by =</span> <span class="fu">join_by</span>(<span class="st">"Sample"</span> <span class="sc">==</span> <span class="st">"sra.sample_title"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb51-8"><a href="#cb51-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">left_join</span>(<span class="at">y =</span> <span class="fu">as_tibble</span>(<span class="fu">rowData</span>(dds)), <span class="at">by =</span> <span class="fu">join_by</span>(<span class="st">"Gene"</span> <span class="sc">==</span> <span class="st">"gene_id"</span>))</span>
+<span id="cb51-9"><a href="#cb51-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> group, <span class="at">y =</span> <span class="st">`</span><span class="at">Normalized expression</span><span class="st">`</span>, <span class="at">group =</span> tissue, <span class="at">col =</span> tissue)) <span class="sc">+</span></span>
+<span id="cb51-10"><a href="#cb51-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span>gene_name, <span class="at">scales =</span> <span class="st">"free_y"</span>, <span class="at">ncol =</span> <span class="dv">5</span>) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="fl">0.2</span>),</span>
+<span id="cb51-11"><a href="#cb51-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.8</span>, <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span> <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> myPalette[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">10</span>,</span>
+<span id="cb51-12"><a href="#cb51-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">angle =</span> <span class="dv">90</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">vjust =</span> <span class="fl">0.5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="hands_on_DESeq2_files/figure-html/unnamed-chunk-11-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><img src="img/round-help-button.png" class="img-fluid"> What do you think about these results? Are these genes described in the original paper? How would you describe the behavior of these genes in simple words?</p>
+</section>
+</section>
+<section id="gsea" class="level1">
+<h1>GSEA</h1>
+<p>Although we detect few significant genes for the interaction, it is possible that some trends are visible “collectively” at the gene set level</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>GOmapping <span class="ot">&lt;-</span> AnnotationDbi<span class="sc">::</span><span class="fu">select</span>(org.Mm.eg.db, <span class="at">keys =</span> <span class="fu">rowData</span>(dds)<span class="sc">$</span>gene_id, <span class="at">keytype =</span> <span class="st">"ENSEMBL"</span>,</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">c</span>(<span class="st">"GOALL"</span>, <span class="st">"EVIDENCEALL"</span>, <span class="st">"ONTOLOGYALL"</span>))</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a><span class="do">## Transform to list</span></span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>GOmapping <span class="ot">&lt;-</span> <span class="fu">tapply</span>(GOmapping<span class="sc">$</span>ENSEMBL, <span class="fu">list</span>(GOmapping<span class="sc">$</span>GOALL), unique)</span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a><span class="do">## Filter gene sets smaller than 10 genes, and gene sets larger than 500 genes</span></span>
+<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a>GOmapping <span class="ot">&lt;-</span> GOmapping[<span class="fu">sapply</span>(GOmapping, length) <span class="sc">&gt;=</span> <span class="dv">10</span> <span class="sc">&amp;</span> <span class="fu">sapply</span>(GOmapping, length) <span class="sc">&lt;</span></span>
+<span id="cb52-7"><a href="#cb52-7" aria-hidden="true" tabindex="-1"></a>    <span class="dv">500</span>]</span>
+<span id="cb52-8"><a href="#cb52-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-9"><a href="#cb52-9" aria-hidden="true" tabindex="-1"></a><span class="do">## Run fastGSEA</span></span>
+<span id="cb52-10"><a href="#cb52-10" aria-hidden="true" tabindex="-1"></a>ranks <span class="ot">&lt;-</span> <span class="fu">na.omit</span>(<span class="fu">setNames</span>(res<span class="sc">$</span>log2FoldChange, <span class="at">nm =</span> <span class="fu">row.names</span>(res)))</span>
+<span id="cb52-11"><a href="#cb52-11" aria-hidden="true" tabindex="-1"></a>fgseaRes <span class="ot">&lt;-</span> <span class="fu">fgsea</span>(<span class="at">pathways =</span> GOmapping, <span class="at">stats =</span> ranks)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in preparePathwaysAndStats(pathways, stats, minSize, maxSize, gseaParam, : There are ties in the preranked stats (0.03% of the list).
+The order of those tied genes will be arbitrary, which may produce unexpected results.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Add info on Gene Ontology terms</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>fgseaRes <span class="ot">&lt;-</span> <span class="fu">cbind</span>(fgseaRes, AnnotationDbi<span class="sc">::</span><span class="fu">select</span>(GO.db, <span class="at">keys =</span> fgseaRes<span class="sc">$</span>pathway,</span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">keytype =</span> <span class="st">"GOID"</span>, <span class="at">columns =</span> <span class="fu">c</span>(<span class="st">"ONTOLOGY"</span>, <span class="st">"TERM"</span>)))  <span class="co">#, 'DEFINITION')))</span></span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(fgseaRes<span class="sc">$</span>padj <span class="sc">&lt;</span> <span class="fl">0.05</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+FALSE  TRUE 
+ 8336    12 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(fgseaRes[<span class="fu">order</span>(fgseaRes<span class="sc">$</span>pval), ], <span class="at">n =</span> <span class="dv">11</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       pathway         pval         padj   log2err         ES       NES  size
+        &lt;char&gt;        &lt;num&gt;        &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt; &lt;int&gt;
+ 1: GO:0002088 8.807316e-12 7.352347e-08 0.8753251  0.8496676  2.560970    93
+ 2: GO:0097733 8.415391e-07 3.512584e-03 0.6594444 -0.6545354 -1.895494   120
+ 3: GO:0005212 1.565208e-06 4.355452e-03 0.6435518  0.9323406  2.214142    24
+ 4: GO:0001750 2.877570e-06 6.005488e-03 0.6272567 -0.6760268 -1.880752    92
+ 5: GO:0001654 3.662894e-06 6.115567e-03 0.6272567  0.4910058  1.713859   449
+ 6: GO:0097731 7.661505e-06 1.065971e-02 0.5933255 -0.6185520 -1.800976   134
+ 7: GO:0150063 9.822988e-06 1.125289e-02 0.5933255  0.4908193  1.709236   452
+ 8: GO:0048880 1.078380e-05 1.125289e-02 0.5933255  0.4875506  1.696298   458
+ 9: GO:0001917 1.399205e-05 1.289664e-02 0.5933255 -0.6970645 -1.850433    71
+10: GO:0043010 1.544878e-05 1.289664e-02 0.5756103  0.5095899  1.757534   401
+11: GO:0002089 3.978742e-05 3.019503e-02 0.5573322  0.8412424  2.052464    27
+     leadingEdge       GOID ONTOLOGY                                  TERM
+          &lt;list&gt;     &lt;char&gt;   &lt;char&gt;                                &lt;char&gt;
+ 1: ENSMUSG0.... GO:0002088       BP   lens development in camera-type eye
+ 2: ENSMUSG0.... GO:0097733       CC             photoreceptor cell cilium
+ 3: ENSMUSG0.... GO:0005212       MF    structural constituent of eye lens
+ 4: ENSMUSG0.... GO:0001750       CC           photoreceptor outer segment
+ 5: ENSMUSG0.... GO:0001654       BP                       eye development
+ 6: ENSMUSG0.... GO:0097731       CC                 9+0 non-motile cilium
+ 7: ENSMUSG0.... GO:0150063       BP             visual system development
+ 8: ENSMUSG0.... GO:0048880       BP            sensory system development
+ 9: ENSMUSG0.... GO:0001917       CC           photoreceptor inner segment
+10: ENSMUSG0.... GO:0043010       BP           camera-type eye development
+11: ENSMUSG0.... GO:0002089       BP lens morphogenesis in camera-type eye</code></pre>
+</div>
+</div>
+</section>
+<section id="to-finish" class="level1">
+<h1>To finish</h1>
+<ul>
+<li><p><em>“Interpretations of sex-related variation are not always commensurate with the story the data actually tell”</em> (Pape et al.&nbsp;2024). How do you judge the interpretations of the results in the published paper?</p></li>
+<li><p>Discuss potential limitations of the paper and the conclusion about the absence of Tamoxifen effect.</p>
+<ul>
+<li>What is important to notice in the design of the experiment (tamoxifen treatment duration, batches, number of replicates, …)?</li>
+<li>Have a look at the results and materials and methods section: which analyses were made and how could they influence the results?</li>
+</ul></li>
+<li><p>Limitations of our reanalysis: what could be improved if we had more time?</p>
+<ul>
+<li>Try subsetting the dataset to one tissue as done by the authors. What do you notice?</li>
+</ul></li>
+<li><p><em>“Sex is not a causal mechanism”</em> (Pape et al.&nbsp;2024): follow-up on some DE genes and try to find which mechanism of action could explain their differential expression patterns.</p></li>
+<li><p>Discuss what would be the next steps if that was your research project. Which experiments would you design next? How would you describe the results in a paper?</p>
+<ul>
+<li>You can also have a look at other related papers (e.g., https://www.nature.com/articles/s41586-022-04686-1, https://www.ahajournals.org/doi/10.1161/ATVBAHA.123.319922)</li>
+<li>Or look at follow-up papers from the same authors (e.g., https://link.springer.com/article/10.1007/s12035-022-02860-0)</li>
+</ul></li>
+</ul>
+<p><sub>Icons taken from http://www.flaticon.com/</sub></p>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
