@@ -44,7 +44,7 @@ saveRDS(devtools::session_info(), "session_info_recount3.rds")
 
 # Read in data
 
-Raw and processed data are available from GEO [(accession GSE135752)](GEO:%20https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE135752)
+Raw and processed data are available from GEO [(accession GSE135752)](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE135752)
 
 We will load directly the reprocessed data from the [recount3 project](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-021-02533-6), a project which reprocessed uniformly thousands of bulk RNA-seq datasets from human and mouse. A [Bioconductor package](https://bioconductor.org/packages/release/bioc/html/recount3.html) allows to easily retrieve this data in the form of standard Bioconductor classes objects, such as `RangedSummarizedExperiment`.
 
